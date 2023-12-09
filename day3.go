@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 func isDigit(char byte) bool {
@@ -50,6 +51,14 @@ func main() {
 				if num != "" {
 					// foundSymbol := false
 					// Check surrounding characters, including diagonals, for symbols
+					if symbolAround(x, x+len(num)-1, y, lines) {
+						n, err := strconv.Atoi(string(num))
+						if err != nil {
+							fmt.Println("Error converting", err)
+						}
+						sum += n
+						numbersWithSymbol = append(numbersWithSymbol, num)
+					}
 					x += len(num)
 				}
 			} else {
@@ -80,4 +89,31 @@ func findNumber(lines []string, startX, startY int) string {
 		startX = 0 // Reset startX for subsequent lines
 	}
 	return number
+}
+
+func symbolAround(startX, endX, y int, lines []string) bool {
+	// Check x before startX and x after endX
+	if startX-1 >= 0 && isSymbol(lines[y][startX-1]) {
+		return true
+	}
+	if endX+1 < len(lines[y]) && isSymbol(lines[y][endX+1]) {
+		return true
+	}
+	for dy := -1; dy <= 1; dy++ {
+		if dy == 0 {
+			continue // Skip the current character
+		}
+
+		newY := y + dy
+		if newY >= 0 && newY < len(lines) {
+			for newX := startX - 1; newX <= endX+1; newX++ {
+				if newX >= 0 && newX < len(lines[y]) {
+					if isSymbol(lines[newY][newX]) {
+						return true // Symbol found nearby
+					}
+				}
+			}
+		}
+	}
+	return false
 }
